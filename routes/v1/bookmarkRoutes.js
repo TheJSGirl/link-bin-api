@@ -83,7 +83,7 @@ bookMarkRoutes.route('/')
             messsage: 'service unavailable',
             errCode: 503
           });
-          console.log(err)
+          console.log(err); 
         });
       })
       .catch(err => console.log(err));
@@ -107,7 +107,7 @@ bookMarkRoutes.route('/:id')
       }
     })
     .then((data) => {
-      console.log('data = ',data);
+      //console.log('data = ',data);
       if(data.length < 1){
         return res.status(404).json({
           data: [],
@@ -131,10 +131,42 @@ bookMarkRoutes.route('/:id')
         message: 'service unavailable',
         errCode: 503
       });
-    });
-
+    })
   })
+  .delete((req, res) => {
+    let _id = parseInt(req.params.id);
 
+    if(isNaN(_id)){
+      return res.status(422).json({
+        data: [],
+        status: 'failed',
+        message: 'invalid id',
+        errCode: 422
+      });
+    }
+
+    Bookmark.destroy({
+      where: {
+        id: _id
+      }
+    })
+    .then((data) => {
+      return res.status(200).json({
+        data: [], 
+        status: 'ok',
+        message: 'deleted successfully',
+        errCode: null
+      });
+    })
+    .catch((err) => {
+      return res.status(503).json({
+        data: [],
+        status: 'failed',
+        message: 'service unavailable',
+        errCode: 503
+      });
+    });
+  });
 
 
 module.exports = bookMarkRoutes;
