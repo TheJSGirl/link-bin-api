@@ -89,4 +89,52 @@ bookMarkRoutes.route('/')
       .catch(err => console.log(err));
     });
 
+
+bookMarkRoutes.route('/:id')
+  .get((req, res) => {
+    const id = parseInt(req.params.id);
+    if(isNaN(id)) {
+      return res.status(422).json({
+        data: [],
+        status: 'failed',
+        messsage: 'invalid id sent',
+        errCode: 422
+      });
+    }
+    Bookmark.findAll({
+      where: {
+        id: id
+      }
+    })
+    .then((data) => {
+      console.log('data = ',data);
+      if(data.length < 1){
+        return res.status(404).json({
+          data: [],
+          status:'failed',
+          message: 'data not found',
+          errCode: 404
+        });
+      }
+      return res.status(200).json({
+        data,
+        status:'ok',
+        message:'found data',
+        errCode: 200
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(503).json({
+        data: [],
+        status: 'failed',
+        message: 'service unavailable',
+        errCode: 503
+      });
+    });
+
+  })
+
+
+
 module.exports = bookMarkRoutes;
