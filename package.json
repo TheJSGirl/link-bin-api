@@ -1,0 +1,20 @@
+{
+  "name": "link-bin-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.4",
+    "mysql2": "^1.4.1",
+    "sequelize": "^4.7.0"
+  },
+  "devDependencies": {
+    "morgan": "^1.8.2"
+  }
+}
