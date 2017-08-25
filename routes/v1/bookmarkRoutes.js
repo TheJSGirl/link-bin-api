@@ -24,8 +24,7 @@ bookMarkRoutes.route('/')
             errCode: 503
           })
         });
-
-    })
+      })
     .post((req, res) => {
       // TODO data will come from user
 
@@ -77,13 +76,23 @@ bookMarkRoutes.route('/')
           //console.log(data);
         })
         .catch((err) => {
-          res.status(503).json({
+          console.log(err); 
+          
+          if(err.original.code === 'ER_DUP_ENTRY'){
+            return res.status(409).json({
+              data: [],
+              status: 'failed',
+              message: 'duplicate data',
+              errCode: 409
+            });
+          }
+         return res.status(503).json({
             data: [],
             status: 'failed',
             messsage: 'service unavailable',
             errCode: 503
           });
-          console.log(err); 
+          
         });
       })
       .catch(err => console.log(err));
@@ -159,6 +168,52 @@ bookMarkRoutes.route('/:id')
       });
     })
     .catch((err) => {
+      return res.status(503).json({
+        data: [],
+        status: 'failed',
+        message: 'service unavailable',
+        errCode: 503
+      });
+    });
+  })
+  .patch((req, res) => {
+    console.log(req.body);
+    console.log(req.params);
+  
+    const id   = parseInt(req.params.id);
+    const name = req.body.name;
+    const link = req.body.link;
+    
+    if(isNaN(id)){
+      return res.status(422).json({
+        data: [],
+        status: 'failed',
+        message: 'invalid id',
+        errCode: 422
+      });
+    }
+
+    Bookmark.update(
+      
+      {
+        name: name,
+        link: link
+      },
+      {
+      where: {
+        id: id
+      }
+    })
+    .then((data) => {
+      return res.status(200).json({
+        data,
+        status: 'ok',
+        message: 'update message',
+        errCode: 200
+      });
+    })
+    .catch((err) => {
+      console.log("error of update route is:" + err);
       return res.status(503).json({
         data: [],
         status: 'failed',
