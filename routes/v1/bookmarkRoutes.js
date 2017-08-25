@@ -183,7 +183,16 @@ bookMarkRoutes.route('/:id')
     const id   = parseInt(req.params.id);
     const name = req.body.name;
     const link = req.body.link;
-    
+    if(!name && !link ){
+      return res.status(422).json({
+        data: [],
+        status: 'failed',
+        message: 'missing parameter',
+        errCode: 422
+      });
+    }
+    const updateList = {};
+
     if(isNaN(id)){
       return res.status(422).json({
         data: [],
@@ -193,12 +202,16 @@ bookMarkRoutes.route('/:id')
       });
     }
 
+    if(name){
+      updateList.name = name;
+    }
+
+    if (link) {
+      updateList.link = link;
+    }
+
     Bookmark.update(
-      
-      {
-        name: name,
-        link: link
-      },
+      updateList,
       {
       where: {
         id: id
@@ -213,7 +226,16 @@ bookMarkRoutes.route('/:id')
       });
     })
     .catch((err) => {
-      console.log("error of update route is:" + err);
+      console.error('**Error => ', err);
+
+      if(err.original.code === 'ER_DUP_ENTRY'){
+        return res.status(409).json({
+          data: [],
+          status: 'failed',
+          message: 'duplicate data',
+          errCode: 409
+        });
+      }
       return res.status(503).json({
         data: [],
         status: 'failed',
