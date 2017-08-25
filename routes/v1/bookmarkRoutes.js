@@ -1,7 +1,7 @@
 const bookMarkRoutes = require('express').Router();
 const sequelize = require('../../db/db');
 const Bookmark = require('../../models/Bookmark');
-const {verifyLink} = require('../../helpers');
+const {verifyLink, sendResponse} = require('../../helpers');
 
 
 
@@ -9,15 +9,17 @@ bookMarkRoutes.route('/')
     .get((req, res) =>{
       Bookmark.findAll()
         .then((data) => {
-          res.status(200).json({
-            data,
-            status:'ok',
-            message: 'all the bookmarks',
-            errCode: null
-          });
+          return sendResponse(res, data, 'ok', 'all the bookmarks', 200);
+          // return res.status(200).json({
+          //   data,
+          //   status:'ok',
+          //   message: 'all the bookmarks',
+          //   errCode: null
+          // });
         })
         .catch((err) => {
-          res.status(503).json({
+          console.log(err);
+          return res.status(503).json({
             data:[],
             status: 'failed',
             message: 'service unavailable',
