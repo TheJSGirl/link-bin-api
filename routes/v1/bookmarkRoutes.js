@@ -1,7 +1,7 @@
 const bookMarkRoutes = require('express').Router();
 const sequelize = require('../../db/db');
 const Bookmark = require('../../models/Bookmark');
-const {verifyLink} = require('../../helpers');
+const {verifyLink, sendResponse} = require('../../helpers');
 
 
 
@@ -9,20 +9,13 @@ bookMarkRoutes.route('/')
     .get((req, res) =>{
       Bookmark.findAll()
         .then((data) => {
-          res.status(200).json({
-            data,
-            status:'ok',
-            message: 'all the bookmarks',
-            errCode: null
-          });
+          return sendResponse(res, data, 'ok', 'all the bookmarks', 200);
+         
         })
         .catch((err) => {
-          res.status(503).json({
-            data:[],
-            status: 'failed',
-            message: 'service unavailable',
-            errCode: 503
-          })
+          console.log(err);
+          return sendResponse(res, [], 'failed', 'service unavailable', 503);
+         
         });
       })
     .post((req, res) => {
@@ -34,12 +27,7 @@ bookMarkRoutes.route('/')
       // server side validation for arguments
 
       if(name.length < 3 || name.length > 50) {
-        return res.status(422).json({
-          data: [],
-          status: 'failed',
-          message: 'invalid name sent, it should be 3-50 chars long',
-          errCode: 422
-        });
+        return sendResponse(res, [], 'failed', 'invalid name sent, it should be 3-50 chars long', 422);
       }
 
       /**
@@ -47,12 +35,7 @@ bookMarkRoutes.route('/')
        */
       if(!verifyLink(link)){
         // similar to verifyLink(link) === false
-        return res.status(422).json({
-          data: [],
-          status: 'failed',
-          message: 'invalid link sent',
-          errCode: 422
-        });
+        return sendResponse(res, [], 'failed', 'invalid link sent', 422);
       }
 
       const newBookmark = Bookmark.build({
@@ -79,20 +62,11 @@ bookMarkRoutes.route('/')
           console.log(err); 
           
           if(err.original.code === 'ER_DUP_ENTRY'){
-            return res.status(409).json({
-              data: [],
-              status: 'failed',
-              message: 'duplicate data',
-              errCode: 409
-            });
+            return sendResponse(res, null, 'failed', 'duplicate data', 409);
           }
-         return res.status(503).json({
-            data: [],
-            status: 'failed',
-            messsage: 'service unavailable',
-            errCode: 503
-          });
-          
+
+          return sendResponse(res, null, 'failed', 'service unavailable', 503);
+      
         });
       })
       .catch(err => console.log(err));
@@ -103,12 +77,14 @@ bookMarkRoutes.route('/:id')
   .get((req, res) => {
     const id = parseInt(req.params.id);
     if(isNaN(id)) {
-      return res.status(422).json({
-        data: [],
-        status: 'failed',
-        messsage: 'invalid id sent',
-        errCode: 422
-      });
+      console.log(id);
+      return (res, null, 'failed', 'invalid id', 422);
+      // return res.status(422).json({
+      //   data: [],
+      //   status: 'failed',
+      //   messsage: 'invalid id sent',
+      //   errCode: 422
+      // });
     }
     Bookmark.findAll({
       where: {
@@ -118,40 +94,23 @@ bookMarkRoutes.route('/:id')
     .then((data) => {
       //console.log('data = ',data);
       if(data.length < 1){
-        return res.status(404).json({
-          data: [],
-          status:'failed',
-          message: 'data not found',
-          errCode: 404
-        });
+        //id not available in bookmark table 
+        // so the length of data will be less than 1 or == 0
+       // now we'll return the user a message that data not found  
+        return sendResponse (res, null, 'failed', 'data not found', 404);
       }
-      return res.status(200).json({
-        data,
-        status:'ok',
-        message:'found data',
-        errCode: 200
-      });
+      return sendResponse (res, data, 'ok', 'found data', 200);
     })
     .catch((err) => {
       console.log(err);
-      return res.status(503).json({
-        data: [],
-        status: 'failed',
-        message: 'service unavailable',
-        errCode: 503
-      });
-    })
+      return sendResponse(res, [], 'failed', 'service unavailable', 503);
+    });
   })
   .delete((req, res) => {
     let _id = parseInt(req.params.id);
 
     if(isNaN(_id)){
-      return res.status(422).json({
-        data: [],
-        status: 'failed',
-        message: 'invalid id',
-        errCode: 422
-      });
+      return sendResponse(res, null, 'failed', 'invalid id', 422);
     }
 
     Bookmark.destroy({
@@ -160,20 +119,11 @@ bookMarkRoutes.route('/:id')
       }
     })
     .then((data) => {
-      return res.status(200).json({
-        data: [], 
-        status: 'ok',
-        message: 'deleted successfully',
-        errCode: null
-      });
+      return sendResponse(res, null, 'ok', 'deleted sucessfully', 200);
     })
     .catch((err) => {
-      return res.status(503).json({
-        data: [],
-        status: 'failed',
-        message: 'service unavailable',
-        errCode: 503
-      });
+      console.error(err);
+      return sendResponse(res, null, 'failed', 'service unavailable', 503 );
     });
   })
   .patch((req, res) => {
@@ -184,22 +134,12 @@ bookMarkRoutes.route('/:id')
     const name = req.body.name;
     const link = req.body.link;
     if(!name && !link ){
-      return res.status(422).json({
-        data: [],
-        status: 'failed',
-        message: 'missing parameter',
-        errCode: 422
-      });
+      return sendResponse(res, null, 'failed', 'missing parameter', 422);
     }
     const updateList = {};
 
     if(isNaN(id)){
-      return res.status(422).json({
-        data: [],
-        status: 'failed',
-        message: 'invalid id',
-        errCode: 422
-      });
+      return sendResponse(res, null, 'failed', 'invalid id', 422);
     }
 
     if(name){
@@ -218,30 +158,17 @@ bookMarkRoutes.route('/:id')
       }
     })
     .then((data) => {
-      return res.status(200).json({
-        data,
-        status: 'ok',
-        message: 'update message',
-        errCode: 200
-      });
+      return sendResponse(res, data, 'ok', 'updated', 200);
     })
     .catch((err) => {
       console.error('**Error => ', err);
 
       if(err.original.code === 'ER_DUP_ENTRY'){
-        return res.status(409).json({
-          data: [],
-          status: 'failed',
-          message: 'duplicate data',
-          errCode: 409
-        });
+        return sendResponse(res, null, 'failed', 'duplicate data', 409);
       }
-      return res.status(503).json({
-        data: [],
-        status: 'failed',
-        message: 'service unavailable',
-        errCode: 503
-      });
+
+      //its nt wrking
+      return sendResponse(res, null, 'failed', 'service unavailable', 503);
     });
   });
 
