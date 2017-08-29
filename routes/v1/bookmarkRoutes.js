@@ -26,6 +26,10 @@ bookMarkRoutes.route('/')
 
       // server side validation for arguments
 
+      if( !name || !link ){
+        return sendResponse(res, [], 'failed', 'missing parameters', 422);
+      }
+
       if(name.length < 3 || name.length > 50) {
         return sendResponse(res, [], 'failed', 'invalid name sent, it should be 3-50 chars long', 422);
       }
