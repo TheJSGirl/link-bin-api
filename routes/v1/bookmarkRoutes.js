@@ -21,12 +21,14 @@ bookMarkRoutes.route('/')
     .post((req, res) => {
       // TODO data will come from user
 
+      // console.log(req.body);
+
       const name = req.body.name;
       const link = req.body.link;
 
       // server side validation for arguments
 
-      if( !name || !link ){
+      if( name === undefined || link === undefined ){
         return sendResponse(res, [], 'failed', 'missing parameters', 422);
       }
 
