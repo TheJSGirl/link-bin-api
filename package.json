@@ -16,9 +16,10 @@
     "cors": "^2.8.4",
     "express": "^4.15.4",
     "mysql2": "^1.4.1",
-    "sequelize": "^4.7.0"
+    "sequelize": "^4.7.0",
+    "morgan": "^1.8.2"
+    
   },
   "devDependencies": {
-    "morgan": "^1.8.2"
   }
 }
