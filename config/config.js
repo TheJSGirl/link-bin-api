@@ -3,14 +3,7 @@ let dbConfig = null;
 
 if(environment === 'develop'){
   process.env.PORT = 5000;
-
-
-  dbConfig = {
-    database: 'link_bin',
-    username: 'root',
-    password: 'pinku'
-  }
-
+  process.env.CLEARDB_DATABASE_URL = 'mysql://root:pinku@localhost:3306/link_bin';
 }
 
 else if (environment === 'testing'){

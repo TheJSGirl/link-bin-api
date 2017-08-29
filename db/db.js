@@ -1,16 +1,8 @@
 const config = require('../config/config');
-const {dbConfig} = require('../config/config');
 const Sequelize = require('sequelize');
 // import Sequelize from 'sequelize';
 
-
-if(dbConfig === null) {
-  console.log('dbConfig is null');
-  process.exit(-1);
-}
-
-const sequelize = new Sequelize(dbConfig.database, dbConfig.username, dbConfig.password, {
-  host: 'localhost',
+const sequelize = new Sequelize(process.env.CLEARDB_DATABASE_URL, {
   dialect: 'mysql',
 
   pool: {

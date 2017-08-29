@@ -55,13 +55,7 @@ bookMarkRoutes.route('/')
       .then(() => {
         newBookmark.save()
         .then((data) => {
-          // data saved successfully, send response to user
-          res.status(200).json({
-            data,
-            status: 'ok',
-            message: 'saved bookmark',
-            errCode: null
-          });
+          return sendResponse(res, data, 'ok', 'saved bookmark', 200);
           //console.log(data);
         })
         .catch((err) => {
